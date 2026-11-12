@@ -1,0 +1,73 @@
+<h2>Resultado</h2>
+{% if varios %}
+    {% if proporcionais %}
+        <p>Os reagentes informados estão em proporção estequiométrica, dentro da precisão numérica. Esgotam-se juntos.</p>
+    {% elif limitantes|length == 1 %}
+        <p><strong>Reagente limitante:</strong> {{ limitantes[0] }}.</p>
+    {% else %}
+        <p><strong>Reagentes que se esgotam juntos:</strong> {{ limitantes|join(', ') }}. Os demais estão em excesso.</p>
+    {% endif %}
+{% else %}
+    <p>Relação calculada a partir de {{ reagentes[0].formula }}, considerando os demais reagentes disponíveis em quantidade suficiente.</p>
+{% endif %}
+<h3>Produtos</h3>
+<ul>
+    {% for p in produtos %}<li><strong>{{ p.formula }}:</strong> ≈ {{ p.quantidade|medida(2 if p.unidade == 'g' else 4) }} {{ p.unidade }}.</li>{% endfor %}
+</ul>
+{% if varios %}
+    <table>
+        <caption>Consumo e quantidade restante dos reagentes</caption>
+        <thead><tr><th scope="col">Reagente</th><th scope="col">Inicial</th><th scope="col">Consumido</th><th scope="col">Restante</th></tr></thead>
+        <tbody>
+        {% for r in reagentes %}
+            <tr><th scope="row">{{ r.formula }}</th><td>{{ r.quantidade|medida }} {{ r.unidade }}</td><td>≈ {{ r.consumido|medida(2 if r.unidade == 'g' else 4) }} {{ r.unidade }}</td><td>≈ {{ r.restante|medida(2 if r.unidade == 'g' else 4) }} {{ r.unidade }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<h2>Resolução</h2>
+<ol>
+    {% for r in reagentes if r.unidade == 'g' %}
+        <li>
+            <h3>Conversão de {{ r.formula }} para mol</h3>
+            <p>Massa molar: {{ r.massa_molar|numero }} g/mol.</p>
+            <p>n = m / M = {{ r.quantidade|medida }} / {{ r.massa_molar|numero }} ≈ {{ r.mol|medida }} mol.</p>
+        </li>
+    {% endfor %}
+    <li>
+        <h3>{{ 'Comparação estequiométrica' if varios else 'Relação estequiométrica' }}</h3>
+        <p>Dividimos a quantidade disponível em mol pelo coeficiente da equação balanceada.</p>
+        <ul>{% for r in reagentes %}<li><strong>{{ r.formula }}:</strong> {{ r.mol|medida }} / {{ r.coeficiente }} ≈ {{ r.razao|medida }} mol.</li>{% endfor %}</ul>
+        <p>A proporção disponível é {{ 'a menor dessas razões' if varios else 'essa razão' }}: ≈ {{ proporcao|medida }} mol.</p>
+        {% if varios and not proporcionais %}<p>{{ limitantes|join(', ') }} {{ 'possui a menor razão e limita' if limitantes|length == 1 else 'possuem as menores razões, iguais dentro da precisão numérica, e limitam' }} a reação.</p>{% endif %}
+        {% if varios and proporcionais %}<p>As razões são iguais dentro da precisão numérica: não há excesso significativo entre os reagentes informados.</p>{% endif %}
+    </li>
+    {% for p in produtos %}
+        <li>
+            <h3>Quantidade de {{ p.formula }} produzida</h3>
+            <p>n = proporção disponível × coeficiente = {{ proporcao|medida }} × {{ p.coeficiente }} ≈ {{ p.mol|medida }} mol.</p>
+        </li>
+        {% if p.unidade == 'g' %}
+            <li>
+                <h3>Conversão de {{ p.formula }} para gramas</h3>
+                <p>Massa molar: {{ p.massa_molar|numero }} g/mol.</p>
+                <p>m = n × M = {{ p.mol|medida }} × {{ p.massa_molar|numero }} ≈ {{ p.quantidade|medida(2) }} g.</p>
+            </li>
+        {% endif %}
+    {% endfor %}
+    {% if varios %}
+        {% for r in reagentes if r.restante_mol > 0 %}
+            <li>
+                <h3>Consumo e excesso de {{ r.formula }}</h3>
+                <p>n consumido = {{ proporcao|medida }} × {{ r.coeficiente }} ≈ {{ r.consumido_mol|medida }} mol.</p>
+                <p>n restante = n inicial − n consumido = {{ r.mol|medida }} − {{ r.consumido_mol|medida }} ≈ {{ r.restante_mol|medida }} mol.</p>
+                {% if r.unidade == 'g' %}
+                    <p>Na unidade informada, usando M = {{ r.massa_molar|numero }} g/mol:</p>
+                    <p>m consumida = {{ r.consumido_mol|medida }} × {{ r.massa_molar|numero }} ≈ {{ r.consumido|medida(2) }} g.</p>
+                    <p>m restante = {{ r.restante_mol|medida }} × {{ r.massa_molar|numero }} ≈ {{ r.restante|medida(2) }} g.</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    {% endif %}
+</ol>
+<p>Os cálculos usam valores não arredondados. Apenas a apresentação é arredondada; valores muito pequenos ou grandes usam notação científica. Diferenças relativas de até 10⁻⁹ entre as razões são tratadas como empate numérico.</p>

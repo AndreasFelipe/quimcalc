@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Ferramentas de Química{% endblock %}</title>
+    <script src="{{ url_for('static', filename='equipe.js') }}" defer></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
+    {% block scripts %}<script src="{{ url_for('static', filename='app.js') }}" defer></script>{% endblock %}
+</head>
+<body class="site">
+    <header class="cabecalho">
+        <a class="marca" href="{{ url_for('inicio') }}">QuimCalc</a>
+        <nav class="navegacao" aria-label="Navegação principal">
+            <ul class="navegacao__lista">
+            {% for rota, nome in [('index', 'Consulta de elementos'), ('pagina_analise', 'Análise de fórmulas'), ('pagina_estequiometria', 'Estequiometria'), ('pagina_solucoes', 'Preparo de Soluções')] %}
+                <li class="navegacao__item"><a class="navegacao__link" href="{{ url_for(rota) }}"{% if request.endpoint == rota %} aria-current="page"{% endif %}>{{ nome }}</a></li>
+            {% endfor %}
+            </ul>
+        </nav>
+        <button class="botao botao--equipe" type="button" id="abrir-equipe" aria-haspopup="dialog" aria-controls="sobre-equipe">Sobre a equipe</button>
+    </header>
+    <main class="conteudo" id="conteudo" tabindex="-1">{% block conteudo %}{% endblock %}</main>
+    <footer class="rodape">
+        <p class="rodape__texto">QuimCalc: ferramentas educacionais para o estudo de Química no Ensino Médio.</p>
+    </footer>
+    {% include 'equipe.html' %}
+</body>
+</html>
