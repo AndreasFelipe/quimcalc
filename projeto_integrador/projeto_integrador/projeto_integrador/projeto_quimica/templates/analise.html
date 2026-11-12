@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Analisar Fórmula Química{% endblock %}
+{% block conteudo %}
+<h1>Análise de Fórmulas Químicas</h1>
+        <form id="formulario" action="{{ url_for('renderizar_analise') }}" method="post">
+            <label for="formula">Fórmula química</label>
+            <input type="text" name="formula" id="formula" placeholder="H2O ou Ca(OH)2"
+                   aria-describedby="ajuda" spellcheck="false" autocapitalize="off">
+            <button type="submit" id="botao">Analisar</button>
+        </form>
+        <p id="ajuda">Use até 256 caracteres. Preserve as maiúsculas e minúsculas: CO e Co são diferentes.</p>
+        <details>
+            <summary>Formatos aceitos e exemplos</summary>
+            <ul>
+                <li>Elementos: <code>H</code>, <code>Ts</code>, <code>Og</code> — os 118 símbolos são aceitos.</li>
+                <li>Fórmulas simples: <code>H2O</code>, <code>NaCl</code>, <code>C6H12O6</code>.</li>
+                <li>Subscritos: <code>H₂O</code>.</li>
+                <li>Parênteses: <code>Ca(OH)2</code>, <code>Al2(SO4)3</code>, <code>K4(Fe(CN)6)</code>.</li>
+                <li>Hidratos: <code>CuSO4·5H2O</code>, <code>CuSO4+5H2O</code> ou <code>CuSO4 5H2O</code>.</li>
+                <li>Multiplicadores: <code>2H2O</code> ou <code>(H2O)2</code>.</li>
+                <li>Isótopos: <code>C[13]H4</code>, <code>H[2]2O</code> ou <code>D2O</code>.</li>
+                <li>Cargas por átomo: <code>Fe{3+}</code>, <code>Na{+}Cl{-}</code>.</li>
+            </ul>
+            <p>Use o ponto central · para hidratos. O ponto comum é decimal: <code>CuSO4.5H2O</code> não significa um hidrato.</p>
+            <p>As quantidades finais devem ser inteiras e positivas. Colchetes indicam isótopos; use parênteses para grupos. Cargas como <code>NH4+</code> não são aceitas nesta sintaxe.</p>
+            <p>Multiplicadores como <code>2H2O</code> multiplicam todo o resultado: a massa indicada corresponde à expressão completa, não à massa molar de H2O isoladamente.</p>
+            <p>Alguns isótopos isolados, como <code>Og[294]</code>, esbarram em uma limitação da biblioteca. O símbolo <code>Og</code> é aceito normalmente.</p>
+        </details>
+        <noscript>Ative o JS para exibir o resultado nesta página.</noscript>
+        <div id="resultado" role="status"></div>
+{% endblock %}
