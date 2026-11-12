@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}Estequiometria{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='estequiometria.js') }}" defer></script>{% endblock %}
+{% macro linha(grupo, conhecida, primeira=false) %}
+    <fieldset data-linha>
+        <legend>{{ 'Reagente' if conhecida else 'Produto' }}</legend>
+        <label>Coeficiente estequiométrico
+            <input name="{{ grupo }}_coeficiente" type="text" inputmode="numeric" placeholder="2" size="6">
+        </label>
+        <label>Fórmula química
+            <input name="{{ grupo }}_formula" type="text" placeholder="{{ 'H2' if conhecida else 'H2O' }}" spellcheck="false" autocapitalize="off" size="15">
+        </label>
+        {% if conhecida %}
+            <label>Quantidade conhecida
+                <input name="{{ grupo }}_quantidade" type="text" inputmode="decimal" placeholder="10" size="12">
+            </label>
+        {% endif %}
+        <label>{{ 'Unidade' if conhecida else 'Resultado em' }}
+            <select name="{{ grupo }}_unidade"><option value="g">g</option><option value="mol">mol</option></select>
+        </label>
+        {% if not primeira %}<button type="button" data-remover>Remover {{ 'reagente' if conhecida else 'produto' }}</button>{% endif %}
+    </fieldset>
+{% endmacro %}
+{% block conteudo %}
+    <h1>Estequiometria</h1>
+    <p>Use os coeficientes de uma equação química já balanceada. Informe cada fórmula sem o coeficiente antes dela. Não é necessário digitar a equação completa.</p>
+    <p>Reagentes não informados serão considerados disponíveis em quantidade suficiente. Esta ferramenta não verifica o balanceamento nem a viabilidade da reação.</p>
+    <form id="formulario-estequiometria" action="{{ url_for('renderizar_estequiometria') }}" method="post" data-max-linhas="{{ max_linhas }}">
+        <fieldset id="campos-estequiometria">
+            <legend>Dados do cálculo</legend>
+            <section aria-labelledby="titulo-conhecidas">
+                <h2 id="titulo-conhecidas">Substâncias conhecidas</h2>
+                <div id="conhecidas">{{ linha('conhecida', true, true) }}</div>
+                <button type="button" data-adicionar="conhecida">Adicionar substância conhecida</button>
+            </section>
+            <section aria-labelledby="titulo-desejadas">
+                <h2 id="titulo-desejadas">Substâncias desejadas</h2>
+                <div id="desejadas">{{ linha('desejada', false, true) }}</div>
+                <button type="button" data-adicionar="desejada">Adicionar substância desejada</button>
+            </section>
+            <p>Use vírgula ou ponto decimal nas quantidades, sem separador de milhares. Até {{ max_linhas }} substâncias por seção, uma linha por fórmula.</p>
+            <button type="submit">Calcular</button>
+        </fieldset>
+    </form>
+    <template id="linha-conhecida">{{ linha('conhecida', true) }}</template>
+    <template id="linha-desejada">{{ linha('desejada', false) }}</template>
+    <p id="aviso-linhas" role="status"></p>
+    <details>
+        <summary>Exemplo de preenchimento</summary>
+        <p>Para 2 H₂ + O₂ → 2 H₂O, informe:</p>
+        <ul><li>Conhecida: coeficiente 2, H₂, 10 g.</li><li>Conhecida: coeficiente 1, O₂, 50 g.</li><li>Desejada: coeficiente 2, H₂O, resultado em g.</li></ul>
+        <p>Fórmulas como CO₂, NaCl, H₂SO₄, Ca(OH)₂ e Al₂(SO₄)₃ também são aceitas. Os símbolos diferenciam maiúsculas e minúsculas.</p>
+        <p>Aqui usamos diretamente a massa molar. Para entender seu cálculo, consulte a <a href="{{ url_for('pagina_analise') }}">análise de fórmulas</a>.</p>
+    </details>
+    <noscript>Ative o JavaScript para adicionar linhas e exibir o resultado abaixo do formulário.</noscript>
+    <div id="resultado" role="status"></div>
+{% endblock %}

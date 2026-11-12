@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}Preparo de Soluções{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='solucoes.js') }}" defer></script>{% endblock %}
+{% block conteudo %}
+    <h1>Preparo de Soluções</h1>
+    <p>Calcule as quantidades necessárias para preparar uma solução.</p>
+    <form id="formulario-solucoes" action="{{ url_for('renderizar_solucoes') }}" method="post">
+        <fieldset id="campos-solucoes">
+            <legend>Dados do preparo</legend>
+            <fieldset>
+                <legend>Como deseja preparar a solução?</legend>
+                <label><input type="radio" name="modo" value="solido" checked> A partir de um soluto sólido</label>
+                <label><input type="radio" name="modo" value="diluicao"> Por diluição de uma solução existente</label>
+            </fieldset>
+            <fieldset id="modo-solido">
+                <legend>Soluto</legend>
+                <label for="formula">Fórmula química</label>
+                <input id="formula" name="formula" type="text" placeholder="NaCl" spellcheck="false" autocapitalize="off">
+            </fieldset>
+            <fieldset id="modo-diluicao" hidden disabled>
+                <legend>Solução estoque</legend>
+                <label for="estoque">Concentração da solução estoque (mol/L)</label>
+                <input id="estoque" name="estoque" type="text" inputmode="decimal" placeholder="2,00">
+            </fieldset>
+            <p>
+                <label for="concentracao">Concentração desejada (mol/L)</label>
+                <input id="concentracao" name="concentracao" type="text" inputmode="decimal" placeholder="0,20">
+            </p>
+            <p>
+                <label for="volume">Volume final desejado</label>
+                <input id="volume" name="volume" type="text" inputmode="decimal" placeholder="500">
+                <label for="unidade">Unidade de volume</label>
+                <select id="unidade" name="unidade"><option value="mL">mL</option><option value="L">L</option></select>
+            </p>
+            <p>Use vírgula ou ponto decimal, sem separador de milhares.</p>
+            <button type="submit">Calcular</button>
+        </fieldset>
+    </form>
+    <p>Os cálculos consideram as concentrações informadas e, no modo sólido, o soluto puro com dissolução completa. A ferramenta não verifica estado físico ou solubilidade.</p>
+    <noscript>Ative o JavaScript para alternar os modos e exibir o resultado nesta página.</noscript>
+    <div id="resultado" role="status"></div>
+{% endblock %}

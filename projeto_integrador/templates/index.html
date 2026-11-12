@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Consultar Elemento{% endblock %}
+{% block conteudo %}
+<h1>Consulta de Elementos</h1>
+        <form id="formulario" action="{{ url_for('renderizar_consulta') }}" method="post">
+            <label for="consulta">Símbolo ou nome do elemento</label>
+            <input type="text" name="consulta" id="consulta" placeholder="H ou hidrogênio" aria-describedby="ajuda" spellcheck="false">
+            <button type="submit" id="botao">Consultar</button>
+        </form>
+        <p id="ajuda">Experimente H ou hidrogênio. Letras maiúsculas e minúsculas são aceitas. Preserve os acentos dos nomes.</p>
+        <details id="painel">
+            <summary>Elementos disponíveis</summary>
+            <fieldset id="lista-elementos">
+                <legend>Selecione para preencher e consultar.</legend>
+                <ul>
+                    {% for nome, simbolo in nomes.items() %}
+                        <li>
+                            <button type="submit" name="consulta" form="formulario" value="{{ nome }}">{{ nome | capitalize }} ({{ simbolo }})</button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </fieldset>
+        </details>
+        <noscript>Ative o JS.</noscript>
+        <div id="resultado" role="status"></div>
+{% endblock %}
